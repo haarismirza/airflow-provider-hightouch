@@ -45,6 +45,7 @@ class HightouchHook(HttpHook):
         self.api_version = api_version
         self._request_max_retries = request_max_retries
         self._request_retry_delay = request_retry_delay
+        self.token = self.get_connection(self.hightouch_conn_id).password
         if self.api_version not in ("v1", "v3"):
             raise AirflowException(
                 "This version of the Hightouch Operator only supports the v1/v3 API."
@@ -72,13 +73,10 @@ class HightouchHook(HttpHook):
             Dict[str, Any]: Parsed json data from the response to this request
         """
 
-        conn = self.get_connection(self.hightouch_conn_id)
-        token = conn.password
-
         user_agent = "AirflowHightouchOperator/" + __version__
         headers = {
             "accept": "application/json",
-            "Authorization": f"Bearer {token}",
+            "Authorization": f"Bearer {self.token}",
             "User-Agent": user_agent,
         }
 
